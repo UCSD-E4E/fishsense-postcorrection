@@ -1,36 +1,55 @@
-from typing import List
+import datetime as dt
+from argparse import ArgumentParser
+from pathlib import Path
 
-def exampleFunction() -> None:
-    """Example function that prints out a message
-    """
-    print("This is a function that does something")
+import numpy as np
+import pyrealsense2 as rs
+import yaml
 
-def exampleReturningFunction() -> str:
-    """Example function that returns a value
 
-    Returns:
-        str: Example return value
-    """
-    return "This function returned a string"
+def main():
+    parser = ArgumentParser()
+    parser.add_argument('input')
+    parser.add_argument('-o', '--output', default=None)
+    parser.add_argument('--params', default='correction_params.yaml')
 
-def exampleComplexFunction(a: int, b: List[str]) -> str:
-    """Example function that does something complex with a function
+    args = parser.parse_args()
+    input_file = Path(args.input)
+    if not input_file.exists():
+        raise RuntimeError("Input path not found")
+    if not input_file.is_file():
+        raise RuntimeError("Not a file")
+    if args.output is None:
+        output_file = input_file.with_name(input_file.stem + '_corrected' + input_file.suffix)
+    else:
+        output_file = Path(args.output)
+    
+    correction_parameter_file = Path(args.params)
 
-    Args:
-        a (int): Number to insert between strings
-        b (List[str]): Strings to combine
+    with open(correction_parameter_file, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    depth_matrix = np.array(data['depth_matrix'])
 
-    Returns:
-        str: String in b concatenated using the string representation of a
-    """
-    return f'{a}'.join(b)
+    frame_idx = 0
+    pipeline = rs.pipeline()
+    config = rs.config()
+    rs.config.enable_device_from_file(config, input_file.as_posix())
+    config.enable_all_streams()
+    pipeline.start(config)
 
-def exampleEntryPoint() -> None:
-    """Example entry point that exersizes all of the module's functions
-    """
-    exampleFunction()
-    print(exampleReturningFunction())
-    print(f"This is a complex function: {exampleComplexFunction(3, ['asdf', 'foo', 'bar'])}")
+    __start_time = dt.datetime.now()
+    try:
+        while True:
+            frames = pipeline.wait_for_frames()
+            if frame_idx % 100 == 0:
+                print(f'Got frame {frame_idx}')
+            frame_idx += 1
+    except:
+        pipeline.stop()
+    __end_time = dt.datetime.now()
+    total_time = (__end_time - __start_time).total_seconds()
+    print(f"Processed {frame_idx} frames in {total_time:.2f} seconds at {frame_idx / total_time} fps")
 
-if __name__ == "__main__":
-    exampleEntryPoint()
+if __name__ == '__main__':
+    main()

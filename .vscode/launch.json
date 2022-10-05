@@ -5,19 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Run Module",
+            "name": "FishSense Postcorrection",
             "type": "python",
             "request": "launch",
-            "module": "examplePackage.exampleModule",
-            "justMyCode": true
-        },
-        {
-            "name": "Python: Run File",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/examplePackage/exampleModule.py",
-            "console": "integratedTerminal",
-            "justMyCode": true
+            "module": "e4e.postcorrection",
+            "justMyCode": true,
+            "args": ["353.bag"]
         }
     ]
 }

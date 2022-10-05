@@ -12,5 +12,10 @@ setup(
         ]
     },
     packages=find_packages(),
-    install_requires=[]
+    install_requires=[
+        'pyyaml',
+        'numpy',
+        'scipy',
+        'pyrealsense2',
+    ]
 )
