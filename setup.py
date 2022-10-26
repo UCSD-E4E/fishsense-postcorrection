@@ -8,7 +8,8 @@ setup(
     entry_points={
         'console_scripts': [
             'fishsense_postcorrection = e4e.postcorrection:main',
-            'fishsense_correctionAnalyze = e4e.analyze:main'
+            'fishsense_correctionAnalyze = e4e.analyze:main',
+            'fishsense_extract = e4e.extract:main'
         ]
     },
     packages=find_packages(),
