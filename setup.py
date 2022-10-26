@@ -18,5 +18,6 @@ setup(
         'numpy',
         'scipy',
         'pyrealsense2',
+        'opencv-python'
     ]
 )
