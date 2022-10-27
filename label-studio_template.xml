@@ -1,0 +1,10 @@
+<View>
+  <KeyPointLabels name="kp-1" toName="img-1">
+    <Label value="Tail" background="red"/>
+    <Label value="Nose" background="green"/>
+  </KeyPointLabels>
+  <RectangleLabels name="labels" toName="img-1">
+    <Label value="Fish" />
+  </RectangleLabels>
+  <Image name="img-1" value="$img" zoom="true" zoomControl="true"/>
+</View>
