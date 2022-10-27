@@ -18,6 +18,7 @@ setup(
         'numpy',
         'scipy',
         'pyrealsense2',
-        'opencv-python'
+        'opencv-python',
+        'tqdm',
     ]
 )

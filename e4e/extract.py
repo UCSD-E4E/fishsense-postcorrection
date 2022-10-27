@@ -3,6 +3,8 @@ from pathlib import Path
 from platform import system
 import subprocess
 
+from e4e.align import xy_align
+
 
 def main():
     parser = ArgumentParser()
@@ -23,8 +25,9 @@ def main():
     
     output_path = output_dir.joinpath(input_path.stem)
 
-    extract_rgb(input_path, output_path)
-    extract_depth(input_path, output_path)
+    # extract_rgb(input_path, output_path)
+    # extract_depth(input_path, output_path)
+    xy_align(input_path, output_dir)
 
 def extract_depth(input_path: Path, output_path: Path):
     if system() == 'Windows':
