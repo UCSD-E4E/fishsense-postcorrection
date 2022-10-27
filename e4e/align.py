@@ -99,7 +99,7 @@ def write_data(depth_image_m, img_fname, mtd_fname, metadata):
     
 def t_align(input_dir: Path, output_dir: Path, label_dir: Path, max_permissible_difference_s: float = 0.1):
     color_frame_t: Dict[float, Path] = {}
-    for color_frame in input_dir.glob('*_Color_t[0-9.]*'):
+    for color_frame in tqdm(input_dir.glob('*_Color_t[0-9.]*')):
         fname = color_frame.stem
         t = float(fname[fname.find('_t') + 2:])
         color_frame_t[t] = color_frame
@@ -107,12 +107,12 @@ def t_align(input_dir: Path, output_dir: Path, label_dir: Path, max_permissible_
     color_times = np.array(list(color_frame_t.keys()))
 
     depth_frame_t: Dict[float, Path] = {}
-    for depth_frame in input_dir.glob('*_Depth_t[0-9.]*'):
+    for depth_frame in tqdm(input_dir.glob('*_Depth_t[0-9.]*')):
         fname = depth_frame.stem
         t = float(fname[fname.find('_t') + 2:])
         depth_frame_t[t] = depth_frame
 
-    for idx, depth_time in enumerate(depth_frame_t):
+    for idx, depth_time in tqdm(enumerate(depth_frame_t)):
         deltas = np.abs(color_times - depth_time)
         min_time_idx = np.argmin(deltas)
         if deltas[min_time_idx] >= max_permissible_difference_s:
