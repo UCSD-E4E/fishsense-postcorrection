@@ -5,12 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "FishSense Extraction",
+            "type": "python",
+            "request": "launch",
+            "module": "e4e.extract",
+            "justMyCode": true,
+            "args": ["160.bag", "D:\\160_bag", "D:\\160_bag_labels"]
+        },
+        {
             "name": "FishSense Postcorrection",
             "type": "python",
             "request": "launch",
             "module": "e4e.postcorrection",
             "justMyCode": true,
-            "args": ["353.bag"]
+            "args": [
+                "353.bag"
+            ]
         }
     ]
 }
