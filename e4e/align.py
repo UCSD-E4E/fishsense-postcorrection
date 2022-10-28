@@ -1,13 +1,16 @@
+from datetime import timedelta
 from pathlib import Path
 from shutil import copy, move
-from typing import Dict
+from typing import Dict, List, Tuple
 import cv2 as cv
 import numpy as np
 import pyrealsense2 as rs
 from tqdm import tqdm
 
+from e4e.timeranges import in_timeranges
 
-def xy_align(bag_file: Path, output_dir: Path, n_metadata: int = 5):
+
+def xy_align(bag_file: Path, output_dir: Path, time_ranges: List[Tuple[timedelta, timedelta]], n_metadata: int = 5):
     pipeline = rs.pipeline()
     config = rs.config()
     
@@ -37,6 +40,9 @@ def xy_align(bag_file: Path, output_dir: Path, n_metadata: int = 5):
                 posCurr = playback.get_position() / 1e9
                 if posCurr < posPrev:
                     break
+
+                if not in_timeranges(posCurr, time_ranges):
+                    continue
                 aligned_frames = align.process(frames)
 
                 aligned_depth_frame = aligned_frames.get_depth_frame()
@@ -116,7 +122,6 @@ def t_align(input_dir: Path, output_dir: Path, label_dir: Path, max_permissible_
         deltas = np.abs(color_times - depth_time)
         min_time_idx = np.argmin(deltas)
         if deltas[min_time_idx] >= max_permissible_difference_s:
-            print("Match not found")
             continue
         color_time = color_times[min_time_idx]
 
