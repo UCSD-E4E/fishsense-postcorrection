@@ -130,3 +130,4 @@ dmypy.json
 
 # FishSense Correction
 *.bag
+*.times.txt
