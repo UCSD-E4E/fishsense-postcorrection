@@ -12,18 +12,13 @@ def main():
     parser.add_argument('input')
     parser.add_argument('output_directory')
     parser.add_argument('label_directory')
-    parser.add_argument('time_filter')
     args = parser.parse_args()
 
     input_path = Path(args.input)
     output_dir = Path(args.output_directory)
     label_dir = Path(args.label_directory)
-    time_filter_path = Path(args.time_filter)
 
     if not input_path.is_file():
-        raise RuntimeError("Not a file")
-    
-    if not time_filter_path.is_file():
         raise RuntimeError("Not a file")
     
     if not output_dir.exists():
@@ -38,9 +33,8 @@ def main():
     if any(label_dir.iterdir()):
         raise RuntimeError("Not empty directory!")
 
-    time_ranges = read_timeranges(time_filter_path)
     
-    xy_align(bag_file=input_path, output_dir=output_dir, time_ranges=time_ranges)
+    xy_align(bag_file=input_path, output_dir=output_dir)
     t_align(output_dir=output_dir, input_dir=output_dir, label_dir=label_dir)
 
 def extract_depth(input_path: Path, output_path: Path):

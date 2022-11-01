@@ -10,7 +10,7 @@ from tqdm import tqdm
 from e4e.timeranges import in_timeranges
 
 
-def xy_align(bag_file: Path, output_dir: Path, time_ranges: List[Tuple[timedelta, timedelta]], n_metadata: int = 5):
+def xy_align(bag_file: Path, output_dir: Path, n_metadata: int = 5):
     pipeline = rs.pipeline()
     config = rs.config()
     
@@ -41,8 +41,6 @@ def xy_align(bag_file: Path, output_dir: Path, time_ranges: List[Tuple[timedelta
                 if posCurr < posPrev:
                     break
 
-                if not in_timeranges(posCurr, time_ranges):
-                    continue
                 aligned_frames = align.process(frames)
 
                 aligned_depth_frame = aligned_frames.get_depth_frame()
