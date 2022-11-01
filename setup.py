@@ -20,5 +20,7 @@ setup(
         'pyrealsense2',
         'opencv-python',
         'tqdm',
+        'matplotlib',
+        'pyyaml',
     ]
 )
