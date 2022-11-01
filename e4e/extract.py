@@ -3,7 +3,7 @@ from pathlib import Path
 from platform import system
 import subprocess
 
-from e4e.align import t_align, xy_align
+from e4e.align import t_align, xy_auto_align
 from e4e.timeranges import read_timeranges
 
 
@@ -34,7 +34,7 @@ def main():
         raise RuntimeError("Not empty directory!")
 
     
-    xy_align(bag_file=input_path, output_dir=output_dir)
+    xy_auto_align(bag_file=input_path, output_dir=output_dir)
     t_align(output_dir=output_dir, input_dir=output_dir, label_dir=label_dir)
 
 def extract_depth(input_path: Path, output_path: Path):

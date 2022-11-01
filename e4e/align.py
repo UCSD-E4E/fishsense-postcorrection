@@ -10,7 +10,7 @@ from tqdm import tqdm
 from e4e.timeranges import in_timeranges
 
 
-def xy_align(bag_file: Path, output_dir: Path, n_metadata: int = 5):
+def xy_auto_align(bag_file: Path, output_dir: Path, n_metadata: int = 5):
     pipeline = rs.pipeline()
     config = rs.config()
     
