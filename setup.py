@@ -9,7 +9,8 @@ setup(
         'console_scripts': [
             'fishsense_postcorrection = e4e.postcorrection:main',
             'fishsense_correctionAnalyze = e4e.analyze:main',
-            'fishsense_extract = e4e.extract:main'
+            'fishsense_extract = e4e.extract:main',
+            'fishsense_visualalign = e4e.visualAlign:visualAlignRun',
         ]
     },
     packages=find_packages(),
