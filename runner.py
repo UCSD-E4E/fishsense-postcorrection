@@ -13,19 +13,20 @@ from e4e.align import t_align, xy_auto_align
 deployment_root_path = Path('/home/ntlhui/google_drive/Test Data/2022-05 Reef Deployment/usa_florida')
 target_path = Path('/home/ntlhui/fishsense/nas/data/2022-05 Reef Deployment outputs')
 progress_path = Path('/home/ntlhui/fishsense/progress.yaml')
+fast_storage = Path('/mnt/fast/fishsense')
 
 # %%
 bag_files = list(deployment_root_path.glob('**/*.bag'))
 output_dirs = ['_'.join(bag_file.relative_to(deployment_root_path).with_suffix('').parts) for bag_file in bag_files]
 label_dirs = ['_'.join(bag_file.relative_to(deployment_root_path).with_suffix('').parts) + '_label' for bag_file in bag_files]
-tmp_paths = [Path('/tmp/fishsense').joinpath('_'.join(bag_file.relative_to(deployment_root_path).parts)) for bag_file in bag_files]
+tmp_paths = [fast_storage.joinpath('_'.join(bag_file.relative_to(deployment_root_path).parts)) for bag_file in bag_files]
 
 # %%
 for dir in tqdm(output_dirs):
     target_path.joinpath(dir).mkdir(parents=True, exist_ok=True)
 for dir in tqdm(label_dirs):
     target_path.joinpath(dir).mkdir(parents=True, exist_ok=True)
-Path('/tmp/fishsense').mkdir(parents=True, exist_ok=True)
+fast_storage.mkdir(parents=True, exist_ok=True)
 # %%
 progress_path.touch(exist_ok=True)
 file_progress = {}
