@@ -26,7 +26,7 @@ with open(progress_path, 'r') as f:
     recorded = yaml.safe_load(f)
     if recorded:
         file_progress.update(recorded)
-for idx, bag_file in tqdm(enumerate(deployment_root_path.glob('**\\*.bag'))):
+for idx, bag_file in tqdm(enumerate(deployment_root_path.glob('**/*.bag'))):
     if bag_file.as_posix() in file_progress:
         continue
     output_dir = target_path.joinpath(output_dirs[idx])
