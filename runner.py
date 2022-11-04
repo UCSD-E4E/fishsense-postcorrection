@@ -23,7 +23,9 @@ for dir in tqdm(label_dirs):
 progress_path.touch(exist_ok=True)
 file_progress = {}
 with open(progress_path, 'r') as f:
-    file_progress.update(yaml.safe_load(f))
+    recorded = yaml.safe_load(f)
+    if recorded:
+        file_progress.update(recorded)
 for idx, bag_file in tqdm(enumerate(deployment_root_path.glob('**\\*.bag'))):
     if bag_file.as_posix() in file_progress:
         continue
