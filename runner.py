@@ -17,19 +17,7 @@ target_path = Path('/home/ntlhui/fishsense/nas/data/2022-05 Reef Deployment outp
 progress_path = Path('/home/ntlhui/fishsense/progress.yaml')
 fast_storage = Path('/home/ntlhui/fishsense/fast/fishsense')
 
-# %%
 bag_files = sorted(list(deployment_root_path.glob('**/*.bag')), key=lambda x: x.stat().st_size)
-output_dirs = ['_'.join(bag_file.relative_to(deployment_root_path).with_suffix('').parts) for bag_file in bag_files]
-label_dirs = ['_'.join(bag_file.relative_to(deployment_root_path).with_suffix('').parts) + '_label' for bag_file in bag_files]
-tmp_paths = [fast_storage.joinpath('_'.join(bag_file.relative_to(deployment_root_path).parts)) for bag_file in bag_files]
-
-# %%
-for dir in tqdm(output_dirs):
-    target_path.joinpath(dir).mkdir(parents=True, exist_ok=True)
-for dir in tqdm(label_dirs):
-    target_path.joinpath(dir).mkdir(parents=True, exist_ok=True)
-fast_storage.mkdir(parents=True, exist_ok=True)
-# %%
 progress_path.touch(exist_ok=True)
 file_progress = {}
 with open(progress_path, 'r') as f:
@@ -38,6 +26,16 @@ with open(progress_path, 'r') as f:
         file_progress.update(recorded)
 
 bag_files = [f for f in bag_files if '_'.join(f.relative_to(deployment_root_path).parts) not in file_progress]
+
+output_dirs = ['_'.join(bag_file.relative_to(deployment_root_path).with_suffix('').parts) for bag_file in bag_files]
+label_dirs = ['_'.join(bag_file.relative_to(deployment_root_path).with_suffix('').parts) + '_label' for bag_file in bag_files]
+tmp_paths = [fast_storage.joinpath('_'.join(bag_file.relative_to(deployment_root_path).parts)) for bag_file in bag_files]
+
+for dir in tqdm(output_dirs):
+    target_path.joinpath(dir).mkdir(parents=True, exist_ok=True)
+for dir in tqdm(label_dirs):
+    target_path.joinpath(dir).mkdir(parents=True, exist_ok=True)
+fast_storage.mkdir(parents=True, exist_ok=True)
 
 tmp_path_queue: "Queue[Path]" = Queue()
 def copy_thread_fn(bag_files: List[Path], tmp_paths: List[Path], tmp_path_queue: "Queue[Path]"):
