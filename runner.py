@@ -13,7 +13,7 @@ from e4e.align import t_align, xy_auto_align
 deployment_root_path = Path('/home/ntlhui/google_drive/Test Data/2022-05 Reef Deployment/usa_florida')
 target_path = Path('/home/ntlhui/fishsense/nas/data/2022-05 Reef Deployment outputs')
 progress_path = Path('/home/ntlhui/fishsense/progress.yaml')
-fast_storage = Path('/mnt/fast/fishsense')
+fast_storage = Path('/home/ntlhui/fishsense/fast/fishsense')
 
 # %%
 bag_files = list(deployment_root_path.glob('**/*.bag'))
