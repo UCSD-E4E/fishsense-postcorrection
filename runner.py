@@ -39,8 +39,8 @@ with open(progress_path, 'r') as f:
 
 bag_files = [f for f in bag_files if f.as_posix() not in file_progress]
 
-tmp_path_queue: Queue[Path] = Queue()
-def copy_thread_fn(bag_files: List[Path], tmp_paths: List[Path], tmp_path_queue: Queue[Path]):
+tmp_path_queue: "Queue[Path]" = Queue()
+def copy_thread_fn(bag_files: List[Path], tmp_paths: List[Path], tmp_path_queue: "Queue[Path]"):
     assert(len(bag_files) == len(tmp_paths))
     for idx in range(len(bag_files)):
         bag_file = bag_files[idx]
@@ -49,7 +49,7 @@ def copy_thread_fn(bag_files: List[Path], tmp_paths: List[Path], tmp_path_queue:
         tmp_path_queue.put(tmp_path)
         print(f"Copied {bag_file} to {tmp_path}")
 
-def process_thread_fn(tmp_path_queue: Queue[Path], output_dirs: List[str], label_dirs: List[str]):
+def process_thread_fn(tmp_path_queue: "Queue[Path]", output_dirs: List[str], label_dirs: List[str]):
     for idx in range(len(output_dirs)):
         bag_file = tmp_path_queue.get()
         output_dir = target_path.joinpath(output_dirs[idx])
