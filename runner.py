@@ -1,8 +1,10 @@
 # %%
+import os
 from pathlib import Path
 from queue import Queue
 from shutil import copy
 from threading import Thread
+from typing import List
 
 import yaml
 from tqdm import tqdm
@@ -16,7 +18,7 @@ progress_path = Path('/home/ntlhui/fishsense/progress.yaml')
 fast_storage = Path('/home/ntlhui/fishsense/fast/fishsense')
 
 # %%
-bag_files = list(deployment_root_path.glob('**/*.bag'))
+bag_files = sorted(list(deployment_root_path.glob('**/*.bag')), key=lambda x: x.stat().st_size)
 output_dirs = ['_'.join(bag_file.relative_to(deployment_root_path).with_suffix('').parts) for bag_file in bag_files]
 label_dirs = ['_'.join(bag_file.relative_to(deployment_root_path).with_suffix('').parts) + '_label' for bag_file in bag_files]
 tmp_paths = [fast_storage.joinpath('_'.join(bag_file.relative_to(deployment_root_path).parts)) for bag_file in bag_files]
@@ -37,8 +39,8 @@ with open(progress_path, 'r') as f:
 
 bag_files = [f for f in bag_files if f.as_posix() not in file_progress]
 
-tmp_path_queue = Queue()
-def copy_thread_fn(bag_files, tmp_paths, tmp_path_queue: Queue):
+tmp_path_queue: Queue[Path] = Queue()
+def copy_thread_fn(bag_files: List[Path], tmp_paths: List[Path], tmp_path_queue: Queue[Path]):
     assert(len(bag_files) == len(tmp_paths))
     for idx in range(len(bag_files)):
         bag_file = bag_files[idx]
@@ -47,7 +49,7 @@ def copy_thread_fn(bag_files, tmp_paths, tmp_path_queue: Queue):
         tmp_path_queue.put(tmp_path)
         print(f"Copied {bag_file} to {tmp_path}")
 
-def process_thread_fn(tmp_path_queue: Queue, output_dirs, label_dirs):
+def process_thread_fn(tmp_path_queue: Queue[Path], output_dirs: List[str], label_dirs: List[str]):
     for idx in range(len(output_dirs)):
         bag_file = tmp_path_queue.get()
         output_dir = target_path.joinpath(output_dirs[idx])
@@ -70,7 +72,7 @@ def process_thread_fn(tmp_path_queue: Queue, output_dirs, label_dirs):
         }
         with open(progress_path, 'w') as f:
             yaml.safe_dump(file_progress, f)
-
+        os.remove(bag_file)
 copy_thread = Thread(target=copy_thread_fn, args=(bag_files, tmp_paths, tmp_path_queue))
 copy_thread.start()
 process_thread = Thread(target=process_thread_fn, args=(tmp_path_queue, output_dirs, label_dirs))
