@@ -1,7 +1,7 @@
 <View>
   <KeyPointLabels name="kp-1" toName="img-1">
-    <Label value="Tail" background="red"/>
     <Label value="Nose" background="green"/>
+    <Label value="Tail" background="red"/>
   </KeyPointLabels>
   <RectangleLabels name="labels" toName="img-1">
     <Label value="Fish" />

@@ -7,6 +7,17 @@ This utility provides the tools to apply affine corrections to a RealSense bag f
     1. Execute `C:\Program Files (x86)\Intel RealSense SDK 2.0\tools\rs-convert.exe -c -d -i ${rosbag} -p ${png_prefix}`
 3. Apply color correction
 4. Label the RGB video
+    1. Create a new Label Studio Project
+    2. Add the data
+    3. Set the labeling template as `label-studio_template.xml`
+    4. Set the labeling instructions to the following:
+    ```
+    Mark the tip and tail of each fish first.  Then, apply a rectangle over each fish.
+
+    Only select fish which are completely flat and clearly visible.  This is not an exercise in finding every fish, only selecting the measurements that we desire to make.
+
+    You must select the tip and tail of each first first before creating the rectangle.  The rectangle must encompass exactly the tip and tail of the fish - we don't care to have a tight box around the fish.
+    ```
 5. Match the RGB video with depth data
 6. Extract corrected labels
 
