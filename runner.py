@@ -47,7 +47,7 @@ def copy_thread_fn(bag_files, tmp_paths, tmp_path_queue: Queue):
         print(f"Copied {bag_file} to {tmp_path}")
 
 def process_thread_fn(tmp_path_queue: Queue, output_dirs, label_dirs):
-    for idx in len(output_dirs):
+    for idx in range(len(output_dirs)):
         bag_file = tmp_path_queue.get()
         output_dir = target_path.joinpath(output_dirs[idx])
         label_dir = target_path.joinpath(label_dirs[idx])
