@@ -20,6 +20,7 @@ for dir in tqdm(label_dirs):
     target_path.joinpath(dir).mkdir(parents=True, exist_ok=True)
 
 # %%
+progress_path.touch(exist_ok=True)
 file_progress = {}
 with open(progress_path, 'r') as f:
     file_progress.update(yaml.safe_load(f))
