@@ -65,6 +65,7 @@ def process_thread_fn(tmp_path_queue: "Queue[Path]", output_dirs: List[str], lab
             }
             with open(progress_path, 'w') as f:
                 yaml.safe_dump(file_progress, f)
+            os.remove(bag_file)
             continue
         print("done")
         file_progress[bag_file.as_posix()] = {
