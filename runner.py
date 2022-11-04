@@ -37,7 +37,7 @@ with open(progress_path, 'r') as f:
     if recorded:
         file_progress.update(recorded)
 
-bag_files = [f for f in bag_files if f.as_posix() not in file_progress]
+bag_files = [f for f in bag_files if '_'.join(f.relative_to(deployment_root_path).parts) not in file_progress]
 
 tmp_path_queue: "Queue[Path]" = Queue()
 def copy_thread_fn(bag_files: List[Path], tmp_paths: List[Path], tmp_path_queue: "Queue[Path]"):
@@ -59,7 +59,7 @@ def process_thread_fn(tmp_path_queue: "Queue[Path]", output_dirs: List[str], lab
             xy_auto_align(bag_file=bag_file, output_dir=output_dir)
             t_align(output_dir=output_dir, input_dir=output_dir, label_dir=label_dir)
         except Exception as e:
-            file_progress[bag_file.as_posix()] = {
+            file_progress[bag_file.name] = {
                 'status': False,
                 'error': str(e)
             }
@@ -68,7 +68,7 @@ def process_thread_fn(tmp_path_queue: "Queue[Path]", output_dirs: List[str], lab
             os.remove(bag_file)
             continue
         print("done")
-        file_progress[bag_file.as_posix()] = {
+        file_progress[bag_file.name] = {
             'status': True
         }
         with open(progress_path, 'w') as f:
