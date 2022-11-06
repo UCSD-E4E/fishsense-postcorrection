@@ -43,7 +43,11 @@ def copy_thread_fn(bag_files: List[Path], tmp_paths: List[Path], tmp_path_queue:
     for idx in range(len(bag_files)):
         bag_file = bag_files[idx]
         tmp_path = tmp_paths[idx]
-        copy(bag_file, tmp_path)
+        if tmp_path.exists():
+            if tmp_path.stat().st_size != bag_file.stat().st_size:
+                copy(bag_file, tmp_path)
+        else:
+            copy(bag_file, tmp_path)
         tmp_path_queue.put(tmp_path)
         print(f"Copied {bag_file} to {tmp_path}")
 
