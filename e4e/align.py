@@ -108,7 +108,7 @@ def t_align(input_dir: Path, output_dir: Path, label_dir: Path, max_permissible_
         t = float(fname[fname.find('_t') + 2:])
         color_frame_t[t] = color_frame
     
-    color_times = np.array(list(color_frame_t.keys()))
+    color_times = list(color_frame_t.keys())
 
     depth_frame_t: Dict[float, Path] = {}
     for depth_frame in tqdm(input_dir.glob('*_Depth_t[0-9.]*')):
@@ -116,23 +116,35 @@ def t_align(input_dir: Path, output_dir: Path, label_dir: Path, max_permissible_
         t = float(fname[fname.find('_t') + 2:])
         depth_frame_t[t] = depth_frame
 
-    for idx, depth_time in tqdm(enumerate(depth_frame_t)):
-        deltas = np.abs(color_times - depth_time)
-        min_time_idx = np.argmin(deltas)
-        if deltas[min_time_idx] >= max_permissible_difference_s:
-            continue
-        color_time = color_times[min_time_idx]
+    depth_times = list(depth_frame_t.keys())
 
+    rgb_idx = 0
+    depth_idx = 0
+    frame_idx = 0
+    with tqdm(total=len(depth_times)) as pbar:
+        while rgb_idx < len(color_times) and depth_idx < len(depth_times):
+            initial_difference_s = color_times[rgb_idx] - depth_times[depth_idx]
+            if initial_difference_s < -1 * max_permissible_difference_s:
+                rgb_idx += 1
+            elif initial_difference_s >  max_permissible_difference_s:
+                depth_idx += 1
+                pbar.update(1)
+            else:
+                depth_time = depth_times[depth_idx]
+                color_time = color_times[rgb_idx]
 
-        depth_files = input_dir.glob(f"*Depth*_t{depth_time:.9f}*")
-        color_files = input_dir.glob(f"*Color*_t{color_time:.9f}*")
+                depth_files = input_dir.glob(f"*Depth*_t{depth_time:.9f}*")
+                color_files = input_dir.glob(f"*Color*_t{color_time:.9f}*")
 
-        frame_folder = output_dir.joinpath(f'frame_{idx:06d}')
-        frame_folder.mkdir(exist_ok=True, parents=True)
-
-        for depth_file in depth_files:
-            move(depth_file, frame_folder.joinpath(depth_file.name))
-        for color_file in color_files:
-            if color_file.suffix.endswith('png'):
-                copy(color_file, label_dir.joinpath(color_file.name))
-            move(color_file, frame_folder.joinpath(color_file.name))
+                frame_folder = output_dir.joinpath(f'frame_{frame_idx:06d}')
+                frame_folder.mkdir(exist_ok=True, parents=True)
+                for depth_file in depth_files:
+                    move(depth_file, frame_folder.joinpath(depth_file.name))
+                for color_file in color_files:
+                    if color_file.suffix.endswith('png'):
+                        copy(color_file, label_dir.joinpath(color_file.name))
+                    move(color_file, frame_folder.joinpath(color_file.name))
+                rgb_idx += 1
+                depth_idx += 1
+                frame_idx += 1
+                pbar.update(1)
