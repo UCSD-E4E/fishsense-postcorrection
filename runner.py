@@ -75,7 +75,7 @@ def run():
         target_path.joinpath(dir).mkdir(parents=True, exist_ok=True)
     fast_storage.mkdir(parents=True, exist_ok=True)
 
-    tmp_path_queue: "Queue[Path]" = Queue()
+    tmp_path_queue: "Queue[Path]" = Queue(maxsize=4)
 
     copy_thread = Thread(target=copy_thread_fn, args=(bag_files, tmp_paths, tmp_path_queue))
     copy_thread.start()
