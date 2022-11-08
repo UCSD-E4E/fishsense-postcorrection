@@ -102,11 +102,13 @@ def write_data(depth_image_m, img_fname, mtd_fname, metadata):
 
     
 def t_align(input_dir: Path, output_dir: Path, label_dir: Path, max_permissible_difference_s: float = 0.1):
+    bag_file_name = ''
     color_frame_t: Dict[float, Path] = {}
     for color_frame in tqdm(input_dir.glob('*_Color_t[0-9.]*')):
         fname = color_frame.stem
         t = float(fname[fname.find('_t') + 2:])
         color_frame_t[t] = color_frame
+        bag_file_name = color_frame.name[:color_frame.name.find('_Color_t')]
     
     color_times = list(color_frame_t.keys())
 
@@ -126,15 +128,21 @@ def t_align(input_dir: Path, output_dir: Path, label_dir: Path, max_permissible_
             initial_difference_s = color_times[rgb_idx] - depth_times[depth_idx]
             if initial_difference_s < -1 * max_permissible_difference_s:
                 rgb_idx += 1
-            elif initial_difference_s >  max_permissible_difference_s:
+            elif initial_difference_s > max_permissible_difference_s:
                 depth_idx += 1
                 pbar.update(1)
             else:
                 depth_time = depth_times[depth_idx]
                 color_time = color_times[rgb_idx]
 
-                depth_files = input_dir.glob(f"*Depth*_t{depth_time:.9f}*")
-                color_files = input_dir.glob(f"*Color*_t{color_time:.9f}*")
+                depth_files = [
+                    input_dir.joinpath(f'{bag_file_name}_Depth_t{depth_time:.9f}.tiff'),
+                    input_dir.joinpath(f'{bag_file_name}_Depth_Metadata_t{depth_time:.9f}.txt'),
+                ]
+                color_files = [
+                    input_dir.joinpath(f'{bag_file_name}_Color_t{color_time:.9f}.png'),
+                    input_dir.joinpath(f'{bag_file_name}_Color_Metadata_t{color_time:.9f}.txt'),
+                ]
 
                 frame_folder = output_dir.joinpath(f'frame_{frame_idx:06d}')
                 frame_folder.mkdir(exist_ok=True, parents=True)
