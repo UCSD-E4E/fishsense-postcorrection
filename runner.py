@@ -3,7 +3,7 @@ from pathlib import Path
 from queue import Queue
 from shutil import copy
 from threading import Thread
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import yaml
 from tqdm import tqdm
@@ -48,6 +48,14 @@ def process_thread_fn(tmp_path_queue: "Queue[Path]", output_dirs: List[str], lab
         with open(progress_path, 'w') as f:
             yaml.safe_dump(file_progress, f)
         os.remove(bag_file)
+
+def t_align_pipelined(input_queue: "Queue[Tuple[Path, Path]]", label_dirs: List[str]):
+    for idx in range(len(label_dirs)):
+        output_dir, label_dir = input_queue.get()
+        try:
+            t_align(output_dir=output_dir, input_dir=output_dir, label_dir=label_dir)
+        except Exception as e:
+            print(e)
 
 def run():
     deployment_root_path = Path('/home/ntlhui/google_drive/Test Data/2022-05 Reef Deployment/usa_florida')
