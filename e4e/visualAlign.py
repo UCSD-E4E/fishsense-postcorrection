@@ -90,4 +90,4 @@ def visualAlignRun():
             yaml.safe_dump(frame_data, f)
 
 if __name__ == '__main__':
-    visualAlignRun(Aligner)
+    visualAlignRun()
