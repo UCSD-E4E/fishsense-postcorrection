@@ -23,5 +23,6 @@ setup(
         'tqdm',
         'matplotlib',
         'pyyaml',
+        'scikit-image',
     ]
 )
