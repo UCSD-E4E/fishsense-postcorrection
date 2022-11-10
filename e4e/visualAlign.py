@@ -7,6 +7,7 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import yaml
 from matplotlib.backend_bases import PickEvent
+from tqdm import tqdm
 
 
 class Aligner:
@@ -64,7 +65,7 @@ def visualAlignRun():
 
     shuffle(frame_dirs)
 
-    for frame_dir in frame_dirs:
+    for frame_dir in tqdm(frame_dirs):
         if frame_dir.as_posix() in frame_data:
             continue
         rgb_paths = list(frame_dir.glob('*.png'))
