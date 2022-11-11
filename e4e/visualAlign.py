@@ -64,31 +64,36 @@ def visualAlignRun():
                 frame_data.update(previous)
 
     shuffle(frame_dirs)
+    n_points = 0
+    for dt in frame_data.values():
+        n_points += len(dt['rgb'])
 
-    for frame_dir in tqdm(frame_dirs):
-        if frame_dir.as_posix() in frame_data:
-            continue
-        rgb_paths = list(frame_dir.glob('*.png'))
-        depth_paths = list(frame_dir.glob('*.tiff'))
-        if len(rgb_paths) != 1:
-            continue
-        if len(depth_paths) != 1:
-            continue
+    with tqdm(total=100, initial=n_points) as pbar:
+        for frame_dir in frame_dirs:
+            if frame_dir.as_posix() in frame_data:
+                continue
+            rgb_paths = list(frame_dir.glob('*.png'))
+            depth_paths = list(frame_dir.glob('*.tiff'))
+            if len(rgb_paths) != 1:
+                continue
+            if len(depth_paths) != 1:
+                continue
 
-        rgb_img = cv.imread(rgb_paths[0].as_posix())
-        depth_img = cv.imread(depth_paths[0].as_posix(), -1)
+            rgb_img = cv.imread(rgb_paths[0].as_posix())
+            depth_img = cv.imread(depth_paths[0].as_posix(), -1)
 
-        points = Aligner(rgb_img, depth_img).run()
-        rgb_points.extend(points[0])
-        depth_points.extend(points[1])
+            points = Aligner(rgb_img, depth_img).run()
+            rgb_points.extend(points[0])
+            depth_points.extend(points[1])
+            pbar.update(len(points[0]))
 
-        data = {
-            'rgb': points[0],
-            'depth': points[1]
-        }
-        frame_data[frame_dir.as_posix()] = data
-        with open(frame_data_path, 'w') as f:
-            yaml.safe_dump(frame_data, f)
+            data = {
+                'rgb': points[0],
+                'depth': points[1]
+            }
+            frame_data[frame_dir.as_posix()] = data
+            with open(frame_data_path, 'w') as f:
+                yaml.safe_dump(frame_data, f)
 
 if __name__ == '__main__':
     visualAlignRun()
