@@ -11,6 +11,7 @@ setup(
             'fishsense_correctionAnalyze = e4e.analyze:main',
             'fishsense_extract = e4e.extract:main',
             'fishsense_visualalign = e4e.visualAlign:visualAlignRun',
+            'fishsense_fishfinder = e4e.fishfinder:fishfinder_main',
         ]
     },
     packages=find_packages(),
