@@ -16,6 +16,8 @@ def fishfinder_main():
     output_file = Path(args.output_file)
     if not input_path.exists():
         raise RuntimeError()
+    if not input_path.is_dir():
+        raise RuntimeError()
     
     fish_images = find_fish(folder=input_path)
     with open(output_file, 'w') as f:
