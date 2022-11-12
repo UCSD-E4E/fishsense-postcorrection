@@ -3,6 +3,7 @@ from typing import List
 from argparse import ArgumentParser
 
 def find_fish(folder: Path) -> List[Path]:
+    all_images = folder.glob('*.png')
     raise NotImplementedError
 
 def fishfinder_main():
