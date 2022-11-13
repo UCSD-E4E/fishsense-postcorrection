@@ -24,5 +24,6 @@ setup(
         'matplotlib',
         'pyyaml',
         'scikit-image',
+        'pylint',
     ]
 )
