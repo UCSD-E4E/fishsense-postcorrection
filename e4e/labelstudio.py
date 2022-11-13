@@ -39,35 +39,57 @@ class FishAnnotation:
 
 def extractFishAnnotations(export_path: Path, data_root: Path) -> List[FishAnnotation]:
     annotations: List[FishAnnotation] = []
-    with open(export_path) as f:
-        data: List[Dict] = json.load(f)
+    with open(export_path, 'r', encoding='utf8') as label_file:
+        data: List[Dict] = json.load(label_file)
     for file_info in data:
         for annotation in file_info['annotations']:
-            assert(isinstance(annotation, dict))
+            assert isinstance(annotation, dict)
             if len(annotation['result']) == 0:
                 continue
             else:
-                rectangles: List[Dict] = []
-                head_points: List[Dict] = []
-                tail_points: List[Dict] = []
+                rectangles: List[Rectangle] = []
+                head_points: List[Point] = []
+                tail_points: List[Point] = []
                 # have data
                 for entry in annotation['result']:
                     if entry['type'] == 'rectanglelabels':
-                        rectangles.append(entry)
+                        rectangles.append(Rectangle(
+                            x=entry['value']['x'],
+                            y=entry['value']['y'],
+                            width=entry['value']['width'],
+                            height=entry['value']['height'],
+                            rotation=entry['value']['rotation']
+                        ))
                     elif entry['type'] == 'keypointlabels':
                         if len(entry['value']['keypointlabels']) != 1:
                             raise NotImplementedError
                         if entry['value']['keypointlabels'][0] == 'Nose':
-                            head_points.append(entry)
+                            head_points.append(Point(
+                                x=entry['value']['x'],
+                                y=entry['value']['y']
+                            ))
                         elif entry['value']['keypointlabels'][0] == 'Tail':
-                            tail_points.append(entry)
+                            tail_points.append(Point(
+                                x=entry['value']['x'],
+                                y=entry['value']['y']
+                            ))
                         else:
                             raise NotImplementedError
                     else:
                         raise NotImplementedError
-                
-
+                for fish_label in rectangles:
+                    head_points_in_fish= [pt for pt in head_points if pt in fish_label]
+                    tail_points_in_fish= [pt for pt in tail_points if pt in fish_label]
+                    if len(head_points_in_fish) != 1 or len(tail_points_in_fish) != 1:
+                        continue
+                    annotations.append(FishAnnotation(
+                        head=head_points_in_fish[0],
+                        tail=tail_points_in_fish[0],
+                        image=Path(file_info['data']['img']).relative_to(data_root)
+                    ))
+    return annotations
 
 
 if __name__ == '__main__':
-    extractFishAnnotations(Path("project-20-at-2022-11-12-22-36-9505164f.json"), Path('data', 'local-files', '?d=fishsense_nas'))
+    output = extractFishAnnotations(Path("project-20-at-2022-11-12-22-36-9505164f.json"), Path('\\', 'data', 'local-files', '?d=fishsense_nas'))
+    print(output)
