@@ -1,28 +1,43 @@
+"""Provides infrastructure to interact with Label Studio outputs
+"""
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 import numpy as np
+
 
 @dataclass
 class Point:
-    x: float
-    y: float
+    """Label Studio Point label
+    """
+    loc_x: float
+    loc_y: float
 
 @dataclass
 class Rectangle:
-    x: float
-    y: float
+    """Label Studio Rectangle label
+
+    Raises:
+        NotImplementedError: If compared against anything other Point
+
+    Returns:
+        _type_: _description_
+    """
+    loc_x: float
+    loc_y: float
     width: float
     height: float
     rotation: float
 
     def __contains__(self, other: Any):
         if isinstance(other, Point):
-            point = np.array([other.x, other.y])
-            point -= np.array([self.x, self.y])
+            point = np.array([other.loc_x, other.loc_y])
+            point -= np.array([self.loc_x, self.loc_y])
             rotation = np.deg2rad(self.rotation)
-            r_mat = np.array([[np.cos(rotation), np.sin(rotation)], [-np.sin(rotation), np.cos(rotation)]])
+            r_mat = np.array([[np.cos(rotation), np.sin(rotation)],
+                [-np.sin(rotation), np.cos(rotation)]])
             point = np.matmul(r_mat, point)
             if np.abs(point[0]) <= self.width / 2. and np.abs(point[1]) <= self.height / 2.:
                 return True
@@ -33,11 +48,27 @@ class Rectangle:
 
 @dataclass
 class FishAnnotation:
+    """Label Studio Fish Complete Annotation
+    """
     head: Point
     tail: Point
     image: Path
 
-def extractFishAnnotations(export_path: Path, data_root: Path) -> List[FishAnnotation]:
+def extract_fish_annotations(export_path: Path, data_root: Path) -> List[FishAnnotation]:
+    """Extracts a list of complete fish annotations
+
+    Args:
+        export_path (Path): Label Studio exported file
+        data_root (Path): Data root directory
+
+    Raises:
+        NotImplementedError: _description_
+        NotImplementedError: _description_
+        NotImplementedError: _description_
+
+    Returns:
+        List[FishAnnotation]: List of completed fish
+    """
     annotations: List[FishAnnotation] = []
     with open(export_path, 'r', encoding='utf8') as label_file:
         data: List[Dict] = json.load(label_file)
@@ -54,8 +85,8 @@ def extractFishAnnotations(export_path: Path, data_root: Path) -> List[FishAnnot
                 for entry in annotation['result']:
                     if entry['type'] == 'rectanglelabels':
                         rectangles.append(Rectangle(
-                            x=entry['value']['x'],
-                            y=entry['value']['y'],
+                            loc_x=entry['value']['x'],
+                            loc_y=entry['value']['y'],
                             width=entry['value']['width'],
                             height=entry['value']['height'],
                             rotation=entry['value']['rotation']
@@ -65,13 +96,13 @@ def extractFishAnnotations(export_path: Path, data_root: Path) -> List[FishAnnot
                             raise NotImplementedError
                         if entry['value']['keypointlabels'][0] == 'Nose':
                             head_points.append(Point(
-                                x=entry['value']['x'],
-                                y=entry['value']['y']
+                                loc_x=entry['value']['x'],
+                                loc_y=entry['value']['y']
                             ))
                         elif entry['value']['keypointlabels'][0] == 'Tail':
                             tail_points.append(Point(
-                                x=entry['value']['x'],
-                                y=entry['value']['y']
+                                loc_x=entry['value']['x'],
+                                loc_y=entry['value']['y']
                             ))
                         else:
                             raise NotImplementedError
@@ -91,5 +122,7 @@ def extractFishAnnotations(export_path: Path, data_root: Path) -> List[FishAnnot
 
 
 if __name__ == '__main__':
-    output = extractFishAnnotations(Path("project-20-at-2022-11-12-22-36-9505164f.json"), Path('\\', 'data', 'local-files', '?d=fishsense_nas'))
+    output = extract_fish_annotations(
+        Path("project-20-at-2022-11-12-22-36-9505164f.json"),
+        Path('\\', 'data', 'local-files', '?d=fishsense_nas'))
     print(output)

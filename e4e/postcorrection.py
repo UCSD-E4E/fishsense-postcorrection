@@ -23,12 +23,12 @@ def main():
         output_file = input_file.with_name(input_file.stem + '_corrected' + input_file.suffix)
     else:
         output_file = Path(args.output)
-    
+
     correction_parameter_file = Path(args.params)
 
-    with open(correction_parameter_file, 'r') as f:
-        data = yaml.safe_load(f)
-    
+    with open(correction_parameter_file, 'r') as handle:
+        data = yaml.safe_load(handle)
+
     depth_matrix = np.array(data['depth_matrix'])
 
     frame_idx = 0
@@ -41,11 +41,11 @@ def main():
     __start_time = dt.datetime.now()
     try:
         while True:
-            frames = pipeline.wait_for_frames()
+            frames = pipeline.wait_for_frames() # pylint: disable unused-variable
             if frame_idx % 100 == 0:
                 print(f'Got frame {frame_idx}')
             frame_idx += 1
-    except:
+    except Exception:  # pylint: disable=broad-except
         pipeline.stop()
     __end_time = dt.datetime.now()
     total_time = (__end_time - __start_time).total_seconds()

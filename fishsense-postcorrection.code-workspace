@@ -5,7 +5,13 @@
 		}
 	],
 	"settings": {
-		"python.linting.pylintEnabled": true
+		"python.linting.pylintEnabled": true,
+		"python.linting.pylintArgs": [
+			"--generated-members=cv2",
+		],
+		"editor.rulers": [
+		100
+		]
 	},
 	"extensions": {
 		"recommendations": [

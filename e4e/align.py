@@ -1,16 +1,23 @@
-from datetime import timedelta
+"""Provides spatial and temporal alignment routines for Intel RealSense ROSBAG files
+"""
 from pathlib import Path
 from shutil import copy, move
-from typing import Dict, List, Tuple
+from typing import Dict
+
 import cv2 as cv
 import numpy as np
 import pyrealsense2 as rs
 from tqdm import tqdm
 
-from e4e.timeranges import in_timeranges
-
 
 def xy_auto_align(bag_file: Path, output_dir: Path, n_metadata: int = 5):
+    """Extracts aligned RGB and Depth stills from the specified ROSBAG files
+
+    Args:
+        bag_file (Path): ROSBAG path
+        output_dir (Path): Output directory for still frames and metadata
+        n_metadata (int, optional): Number of metadata items to write. Defaults to 5.
+    """
     pipeline = rs.pipeline()
     config = rs.config()
 
@@ -31,14 +38,14 @@ def xy_auto_align(bag_file: Path, output_dir: Path, n_metadata: int = 5):
     align_to = rs.stream.color
     align = rs.align(align_to)
 
-    posPrev = 0
+    pos_prev = 0
 
     try:
         with tqdm(total=duration) as pbar:
             while True:
                 frames = pipeline.wait_for_frames()
-                posCurr = playback.get_position() / 1e9
-                if posCurr < posPrev:
+                pos_curr = playback.get_position() / 1e9
+                if pos_curr < pos_prev:
                     break
 
                 aligned_frames = align.process(frames)
@@ -54,7 +61,8 @@ def xy_auto_align(bag_file: Path, output_dir: Path, n_metadata: int = 5):
                     stream_name = aligned_depth_frame.get_profile().stream_type().name
                     depth_img_path = f"{bag_file.stem}_Depth_t{depth_timestamp_s:.9f}.tiff"
                     fname = output_dir.joinpath(depth_img_path)
-                    depth_metadata_path = f'{bag_file.stem}_Depth_Metadata_t{depth_timestamp_s:.9f}.txt'
+                    depth_metadata_path = (f'{bag_file.stem}_'
+                        f'Depth_Metadata_t{depth_timestamp_s:.9f}.txt')
                     mtd_fname = output_dir.joinpath(depth_metadata_path)
 
                     metadata = {
@@ -74,8 +82,10 @@ def xy_auto_align(bag_file: Path, output_dir: Path, n_metadata: int = 5):
                     color_timestamp_s = color_frame.get_timestamp() / 1e3
                     color_frame_number = color_frame.get_frame_number()
                     stream_name = color_frame.get_profile().stream_type().name
-                    fname = output_dir.joinpath(f"{bag_file.stem}_Color_t{color_timestamp_s:.9f}.png")
-                    mtd_fname = output_dir.joinpath(f'{bag_file.stem}_Color_Metadata_t{color_timestamp_s:.9f}.txt')
+                    img_name = f"{bag_file.stem}_Color_t{color_timestamp_s:.9f}.png"
+                    fname = output_dir.joinpath(img_name)
+                    mtd_name = f'{bag_file.stem}_Color_Metadata_t{color_timestamp_s:.9f}.txt'
+                    mtd_fname = output_dir.joinpath(mtd_name)
 
                     metadata = {
                         "Stream": stream_name,
@@ -89,27 +99,48 @@ def xy_auto_align(bag_file: Path, output_dir: Path, n_metadata: int = 5):
                             metadata[mtd_val.name] = color_frame.get_frame_metadata(mtd_val)
                     write_data(color_image, fname, mtd_fname, metadata)
 
-                pbar.update(posCurr - posPrev)
-                posPrev = posCurr
+                pbar.update(pos_curr - pos_prev)
+                pos_prev = pos_curr
 
     finally:
         pipeline.stop()
 
 def write_data(depth_image_m, img_fname, mtd_fname, metadata):
+    """Writes the RealSense metadata to the specified filename
+
+    Args:
+        depth_image_m (_type_): _description_
+        img_fname (_type_): _description_
+        mtd_fname (_type_): _description_
+        metadata (_type_): _description_
+    """
     cv.imwrite(img_fname.as_posix(), depth_image_m)
 
-    with open(mtd_fname, 'w') as mtd_file:
-        for k, v in metadata.items():
-            mtd_file.write(f'{k}: {v}\n')
+    with open(mtd_fname, 'w', encoding='utf-8') as mtd_file:
+        for key, value in metadata.items():
+            mtd_file.write(f'{key}: {value}\n')
 
 
-def t_align(input_dir: Path, output_dir: Path, label_dir: Path, max_permissible_difference_s: float = 0.1):
+def t_align(
+        input_dir: Path,
+        output_dir: Path,
+        label_dir: Path,
+        max_permissible_difference_s: float = 0.1):
+    """Generates temporally aligned RGB and depth frames
+
+    Args:
+        input_dir (Path): Directory containing all RGB and Depth frames
+        output_dir (Path): Directory in which to place aligned RGB and depth frames
+        label_dir (Path): Directory in which to place a copy of RGB frames for labeling
+        max_permissible_difference_s (float, optional): Maximum temporal misalignment.
+            Defaults to 0.1.
+    """
     bag_file_name = ''
     color_frame_t: Dict[float, Path] = {}
     for color_frame in tqdm(input_dir.glob('*_Color_t[0-9.]*')):
         fname = color_frame.stem
-        t = float(fname[fname.find('_t') + 2:])
-        color_frame_t[t] = color_frame
+        timestamp = float(fname[fname.find('_t') + 2:])
+        color_frame_t[timestamp] = color_frame
         bag_file_name = color_frame.name[:color_frame.name.find('_Color_t')]
 
     color_times = list(color_frame_t.keys())
@@ -117,8 +148,8 @@ def t_align(input_dir: Path, output_dir: Path, label_dir: Path, max_permissible_
     depth_frame_t: Dict[float, Path] = {}
     for depth_frame in tqdm(input_dir.glob('*_Depth_t[0-9.]*')):
         fname = depth_frame.stem
-        t = float(fname[fname.find('_t') + 2:])
-        depth_frame_t[t] = depth_frame
+        timestamp = float(fname[fname.find('_t') + 2:])
+        depth_frame_t[timestamp] = depth_frame
 
     depth_times = list(depth_frame_t.keys())
 
