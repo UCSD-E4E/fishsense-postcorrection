@@ -1,9 +1,15 @@
 from pathlib import Path
 from typing import List
 from argparse import ArgumentParser
+from detection_code.detect_function import detect
 
 def find_fish(folder: Path) -> List[Path]:
     all_images = folder.glob('*.png')
+    list =detect(all_images,0.3,0.45)
+    file = open(FLAGS.output + image_name + ".txt", "+w")
+    for i in list:
+        file.write(i)
+        file.write("\n")
     raise NotImplementedError
 
 def fishfinder_main():

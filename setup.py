@@ -20,10 +20,15 @@ setup(
         'numpy',
         'scipy',
         'pyrealsense2',
-        'opencv-python',
+        'opencv-python==4.1.1.26',
         'tqdm',
         'matplotlib',
         'pyyaml',
         'scikit-image',
+        'lxml',
+        'tensorflow==2.3.0rc0',
+        'absl-py',
+        'easydict',
+        'pillow'
     ]
 )
