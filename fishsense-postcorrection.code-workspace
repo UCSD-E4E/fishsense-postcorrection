@@ -18,7 +18,9 @@
 			"ms-python.vscode-pylance",
 			"ms-python.python",
 			"ms-toolsai.jupyter",
-			"njpwerner.autodocstring"
+			"njpwerner.autodocstring",
+			"twxs.cmake",
+			"ms-vscode.cmake-tools"
 		]
 	}
 }
