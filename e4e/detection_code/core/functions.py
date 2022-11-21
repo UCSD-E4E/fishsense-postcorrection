@@ -1,11 +1,12 @@
 import os
+
 import cv2
-import random
-import numpy as np
-import tensorflow as tf
 import pytesseract
-from core.utils import read_class_names
-from core.config import cfg
+import tensorflow as tf
+
+from e4e.detection_code.core.config import cfg
+from e4e.detection_code.core.utils import read_class_names
+
 
 # function to count objects, can return total classes or count per class
 def count_objects(data, by_class = False, allowed_classes = list(read_class_names(cfg.YOLO.CLASSES).values())):
