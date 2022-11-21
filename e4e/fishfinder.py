@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 from argparse import ArgumentParser
-from detection_code.detect_function import detect
+from e4e.detection_code.detect_function import detect
 
 def find_fish(folder: Path) -> List[Path]:
     all_images = folder.glob('*.png')
