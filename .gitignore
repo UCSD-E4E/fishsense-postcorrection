@@ -133,3 +133,4 @@ dmypy.json
 *.times.txt
 *.pb
 *.weights
+yolov4-416
