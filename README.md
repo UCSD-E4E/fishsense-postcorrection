@@ -44,3 +44,10 @@ If we want to denote the ranges 13:11.012-15:11.016, 17:12.561-19:32.781, we wou
 
 Formally, the timestamps shall be in hh:mm:ss.sss.  If possible, comply with ISO 8601 timestamp formats and include as much precision as possible.
 ## Color Correction
+
+## Developer Setup
+1. Open `fishsense-postcorrection.code-workspace` in VS Code
+2. In the root of this repository, run `python -m venv .venv` to create the virtual environment
+3. Activate the virtual environment
+    1. On Windows, run `.venv/Scripts/Activate`
+4. Install the repository as editable by running `python -m pip install -e .`
