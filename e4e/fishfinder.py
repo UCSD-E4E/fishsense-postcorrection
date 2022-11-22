@@ -1,15 +1,12 @@
 """Fish Finding utility
 """
-import zipfile
 from argparse import ArgumentParser
 from getpass import getpass
 from pathlib import Path
-from tempfile import TemporaryFile
 from typing import List
-from urllib.parse import urlparse
 
 import tensorflow as tf
-from smb.SMBConnection import SMBConnection
+from smb_unzip.smb_unzip import smb_unzip
 
 from e4e.detection_code.detect_function import detect
 
@@ -65,27 +62,14 @@ def fishfinder_loadweights(
         tf.saved_model.load(model_path.as_posix())
         return
     except OSError:
-        url_parts = urlparse(network_path)
-
         username = input("E4E NAS Username: ")
         password = getpass()
-
-        smb = SMBConnection(
+        smb_unzip(
+            network_path=network_path,
+            output_path=model_path.parent,
             username=username,
-            password=password,
-            my_name='fishsense_fishfinder',
-            remote_name=url_parts.hostname.split('.')[0]
+            password=password
         )
-        assert smb.connect(url_parts.netloc)
-
-        with TemporaryFile() as tmp_file:
-            smb.retrieveFile(
-                service_name=Path(url_parts.path).parts[1],
-                path=Path(*Path(url_parts.path).parts[2:]).as_posix(), 
-                file_obj=tmp_file)
-            tmp_file.seek(0)
-            with zipfile.ZipFile(tmp_file, 'r') as zip_handle:
-                zip_handle.extractall(path=model_path.parent.as_posix())
 
 if __name__ == '__main__':
     fishfinder_main()

@@ -31,6 +31,6 @@ setup(
         'easydict',
         'pillow',
         'pytesseract',
-        'pysmb',
+        'smb_unzip @ https://github.com/UCSD-E4E/smb-unzip/archive/refs/heads/main.zip'
     ]
 )
