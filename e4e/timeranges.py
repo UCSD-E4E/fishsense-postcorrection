@@ -39,7 +39,7 @@ def read_timeranges(fname: Path) -> List[Tuple[dt.timedelta, dt.timedelta]]:
     return time_ranges
 
 
-def in_timeranges(timestamp: float, ranges: List[Tuple[dt.timedelta, dt.timedelta]]) -> bool:
+def in_timeranges(timestamp: float, time_ranges: List[Tuple[dt.timedelta, dt.timedelta]]) -> bool:
     """Evaluates whether the specified time is in the specified range
 
     Args:
@@ -49,8 +49,8 @@ def in_timeranges(timestamp: float, ranges: List[Tuple[dt.timedelta, dt.timedelt
     Returns:
         bool: True if time is in timerange, otherwise false
     """
-    tranges = [(trange[0].total_seconds(), trange[1].total_seconds()) for trange in ranges]
-    for ranges in tranges:
-        if ranges[0] < timestamp < ranges[1]:
+    tranges = [(trange[0].total_seconds(), trange[1].total_seconds()) for trange in time_ranges]
+    for time_range in tranges:
+        if time_range[0] < timestamp < time_range[1]:
             return True
     return False
