@@ -38,7 +38,8 @@ def process_thread_fn(
         label_dirs: List[str],
         target_path: Path,
         progress_path: Path,
-        file_progress: Dict[str, Dict]):
+        file_progress: Dict[str, Dict],
+        bypass_xy_align_errors: bool = False):
     """Processing thread function
 
     Args:
@@ -48,6 +49,7 @@ def process_thread_fn(
         target_path (Path): Target paths
         progress_path (Path): Progress file path
         file_progress (Dict[str, Dict]): File progress object
+        bypass_xy_align_errors (bool): xy_align error bypass
     """
     for idx, _ in enumerate(output_dirs):
         bag_file = tmp_path_queue.get()
@@ -55,7 +57,10 @@ def process_thread_fn(
         label_dir = target_path.joinpath(label_dirs[idx])
         print(bag_file.as_posix())
         try:
-            xy_auto_align(bag_file=bag_file, output_dir=output_dir)
+            xy_auto_align(
+                bag_file=bag_file,
+                output_dir=output_dir,
+                ignore_errors=bypass_xy_align_errors)
             t_align(output_dir=output_dir, input_dir=output_dir, label_dir=label_dir)
         except Exception as exp: # pylint: disable=broad-except
             file_progress[bag_file.name] = {
@@ -96,6 +101,7 @@ def run():
     target_path = Path('/home/ntlhui/fishsense/nas/data/2022-05 Reef Deployment outputs')
     progress_path = Path('/home/ntlhui/fishsense/progress.yaml')
     fast_storage = Path('/home/ntlhui/fishsense/fast/fishsense')
+    bypass_xy_align_errors = True
 
     bag_files = sorted(list(deployment_root_path.glob('**/*.bag')), key=lambda x: x.stat().st_size)
     progress_path.touch(exist_ok=True)
@@ -125,14 +131,15 @@ def run():
 
     copy_thread = Thread(target=copy_thread_fn, args=(bag_files, tmp_paths, tmp_path_queue))
     copy_thread.start()
-    process_thread_args = (
-        tmp_path_queue,
-        output_dirs,
-        label_dirs,
-        target_path,
-        progress_path,
-        file_progress)
-    process_thread = Thread(target=process_thread_fn, args=process_thread_args)
+    process_thread_args = {
+        'tmp_path_queue': tmp_path_queue,
+        'output_dirs': output_dirs,
+        'label_dirs': label_dirs,
+        'target_path': target_path,
+        'progress_path': progress_path,
+        'file_progress': file_progress,
+        'bypass_xy_align_errors': bypass_xy_align_errors}
+    process_thread = Thread(target=process_thread_fn, kwargs=process_thread_args)
     process_thread.start()
     process_thread.join()
     copy_thread.join()
