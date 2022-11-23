@@ -1,5 +1,7 @@
 """Extracts all data for labeling
 """
+from argparse import ArgumentParser
+from dataclasses import dataclass
 import os
 from pathlib import Path
 from queue import Queue
@@ -11,6 +13,15 @@ import yaml
 from tqdm import tqdm
 
 from e4e.align import t_align, xy_auto_align
+
+@dataclass
+class Job:
+    """Job Class - contains job definition and progress tracking
+    """
+    bag_file: Path
+    tmp_path: Path
+    output_dir: Path
+    label_dir: Path
 
 def copy_thread_fn(bag_files: List[Path], tmp_paths: List[Path], tmp_path_queue: "Queue[Path]"):
     """Copy Thread
@@ -96,12 +107,26 @@ def t_align_pipelined(input_queue: "Queue[Tuple[Path, Path]]", label_dirs: List[
 def run():
     """Main tool function
     """
-    deployment_root_path = Path(
-        '/home/ntlhui/google_drive/Test Data/2022-05 Reef Deployment/usa_florida')
-    target_path = Path('/home/ntlhui/fishsense/nas/data/2022-05 Reef Deployment outputs')
-    progress_path = Path('/home/ntlhui/fishsense/progress.yaml')
-    fast_storage = Path('/home/ntlhui/fishsense/fast/fishsense')
-    bypass_xy_align_errors = True
+    parser = ArgumentParser()
+    parser.add_argument('--input_path')
+    parser.add_argument('--output_path')
+    parser.add_argument('--progress_db')
+    parser.add_argument('--cache_path')
+    parser.add_argument('--bypass_xy_align_errors', action='store_true')
+
+    args = parser.parse_args()
+    # deployment_root_path = Path(
+    #     '/home/ntlhui/google_drive/Test Data/2022-05 Reef Deployment/usa_florida')
+    # target_path = Path('/home/ntlhui/fishsense/nas/data/2022-05 Reef Deployment outputs')
+    # progress_path = Path('/home/ntlhui/fishsense/progress.yaml')
+    # fast_storage = Path('/home/ntlhui/fishsense/fast/fishsense')
+    # bypass_xy_align_errors = True
+
+    deployment_root_path = Path(args.input_path)
+    target_path = Path(args.output_path)
+    progress_path = Path(args.progress_db)
+    fast_storage = Path(args.cache_path)
+    bypass_xy_align_errors = args.bypass_xy_align_errors
 
     bag_files = sorted(list(deployment_root_path.glob('**/*.bag')), key=lambda x: x.stat().st_size)
     progress_path.touch(exist_ok=True)
