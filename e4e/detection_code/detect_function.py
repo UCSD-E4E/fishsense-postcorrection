@@ -14,28 +14,25 @@ import e4e.detection_code.core.utils as utils
 from e4e.detection_code.core.functions import *
 from e4e.detection_code.core.yolov4 import filter_boxes
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-physical_devices = tf.config.experimental.list_physical_devices('GPU')
-if len(physical_devices) > 0:
-    tf.config.experimental.set_memory_growth(physical_devices[0], True)
-
 def detect(iou: float, score: float, images: List[Path]) -> List[Path]:
+    #taking in input from given weights and input folders
     list_fishes: List[Path] = []
-    config = ConfigProto()
-    config.gpu_options.allow_growth = True
+    #saved_model_loaded = tf.saved_model.load("C:\\Users\\ragha\Desktop\\fishsense-postcorrection\\e4e\detection_code\\checkpoints\\yolov4-416\\", tags=[tag_constants.SERVING])
     saved_model_loaded = tf.saved_model.load("./yolov4-416", tags=[tag_constants.SERVING])
-    for file in images:
-        original_image = cv2.imread(file.as_posix())
+    for input_file in images:
+        #The current weights are designed for 416 x 416 images, so preprocssing, recoloring and One-hot encoding
+        original_image = cv2.imread(input_file.as_posix())
         original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
 
         image_data = cv2.resize(original_image, (416, 416))
         image_data = image_data / 255.
 
-
+        #image data is saved 
         images_data = []
-        for i in range(1):
-            images_data.append(image_data)
+        images_data.append(image_data)
         images_data = np.asarray(images_data).astype(np.float32)
+
+
         infer = saved_model_loaded.signatures['serving_default']
         batch_data = tf.constant(images_data)
         pred_bbox = infer(batch_data)
@@ -54,46 +51,17 @@ def detect(iou: float, score: float, images: List[Path]) -> List[Path]:
             score_threshold=score
         )
 
-        # format bounding boxes from normalized ymin, xmin, ymax, xmax ---> xmin, ymin, xmax, ymax
         original_h, original_w, _ = original_image.shape
         bboxes = utils.format_boxes(boxes.numpy()[0], original_h, original_w)
-
-        ##############################################################################################
-
-        ##############################################################################################
-
-        # hold all detection data in one variable
         pred_bbox = [bboxes, scores.numpy()[0], classes.numpy()[0], valid_detections.numpy()[0]]
 
-        # read in all class names from config
         class_names = utils.read_class_names(cfg.YOLO.CLASSES)
+        input_classes = list(class_names.values())
 
-        # by default allow all classes in .names file
-        allowed_classes = list(class_names.values())
-
-        # custom allowed classes (uncomment line below to allow detections for only people)
-        # allowed_classes = ['person']
-
-        counted_things = (count_objects(pred_bbox, by_class=True, allowed_classes=['Fish']))
-        classesfound = []
-        for i in range(len(class_names)):
-            classesfound.append(class_names[i])
-        fishes = []
-        if ('Fish' in counted_things):
-            fishes_found = counted_things['Fish']
-
-            for i in range(fishes_found):
-                fishes.append([bboxes[i][0], bboxes[i][1], bboxes[i][2], bboxes[i][3]])
-
-        # if crop flag is enabled, crop each detection and save it as new image
-
-        # if count flag is enabled, perform counting of objects
-        image = utils.draw_bbox(original_image, pred_bbox, False, allowed_classes=allowed_classes,
-                                    show_label=True, read_plate=False)
-
-        image = Image.fromarray(image.astype(np.uint8))
-
-        image = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
-        list_fishes.append(file)
-
+        counted_things = (count_objects(pred_bbox, by_class=True, allowed_classes=input_classes))
+        if('Fish' in counted_things and counted_things['Fish'] != 0):
+            list_fishes.append(input_file)
+            print("Finished evaluating: "+str(input_file)+ " which had "+str(counted_things['Fish'])+ " fishes")
+        else:
+            print("Finished evaluating: "+str(input_file)+ " which had 0 fishes")
     return list_fishes
