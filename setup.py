@@ -1,3 +1,5 @@
+"""Setup file
+"""
 from setuptools import setup, find_packages
 
 setup(
@@ -25,6 +27,7 @@ setup(
         'matplotlib',
         'pyyaml',
         'scikit-image',
+        'pylint',
         'lxml',
         'tensorflow',
         'absl-py',
