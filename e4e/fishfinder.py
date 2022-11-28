@@ -20,7 +20,7 @@ def find_fish(folder: Path) -> List[Path]:
     Returns:
         List[Path]: List of png files most likely containing fish
     """
-    all_images = folder.glob('*.png')
+    all_images = list(folder.glob('*.png'))
     return detect(
         images=all_images,
         iou=0.3,
