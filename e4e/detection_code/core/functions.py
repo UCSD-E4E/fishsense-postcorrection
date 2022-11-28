@@ -8,7 +8,7 @@ from e4e.detection_code.core.utils import read_class_names
 
 
 # function to count objects, can return total classes or count per class
-def count_objects(data, by_class = False, allowed_classes = list(read_class_names(cfg.YOLO.CLASSES).values())) -> Dict[str, int]
+def count_objects(data, by_class = False, allowed_classes = list(read_class_names(cfg.YOLO.CLASSES).values())) -> Dict[str, int]:
     _, _, classes, num_objects = data
 
     #create dictionary to hold count of objects
