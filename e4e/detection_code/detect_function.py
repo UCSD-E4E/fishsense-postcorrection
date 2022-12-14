@@ -6,7 +6,7 @@ from typing import List, Tuple
 import cv2
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.saved_model import tag_constants
+from tensorflow.python.saved_model import tag_constants # pylint: disable=no-name-in-module
 from tqdm import tqdm
 
 from e4e.detection_code.core import utils
@@ -25,6 +25,8 @@ def detect(iou: float, score: float, images: List[Path]) -> List[Path]:
     Returns:
         List[Path]: List of images that have fish
     """
+    # pylint: disable=too-many-locals
+    # fixme: too-many-locals
     #taking in input from given weights and input folders
     list_fishes: List[Path] = []
 
