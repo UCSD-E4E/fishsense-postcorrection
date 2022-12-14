@@ -1,5 +1,7 @@
+'''Fish Detection Code
+'''
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Tuple
 
 import cv2
 import numpy as np
@@ -7,7 +9,7 @@ import tensorflow as tf
 from tensorflow.python.saved_model import tag_constants
 from tqdm import tqdm
 
-import e4e.detection_code.core.utils as utils
+from e4e.detection_code.core import utils
 from e4e.detection_code.core.config import cfg
 from e4e.detection_code.core.functions import count_objects
 
@@ -25,21 +27,18 @@ def detect(iou: float, score: float, images: List[Path]) -> List[Path]:
     """
     #taking in input from given weights and input folders
     list_fishes: List[Path] = []
-    saved_model_loaded = tf.saved_model.load("./yolov4-416", tags=[tag_constants.SERVING])
-    infer = saved_model_loaded.signatures['serving_default']
-    class_names = utils.read_class_names(cfg.YOLO.CLASSES)
-    input_classes = list(class_names.values())
+
+    model = tf.saved_model.load("./yolov4-416", tags=[tag_constants.SERVING])
+    infer = model.signatures['serving_default']
+    input_classes = list(utils.read_class_names(cfg.YOLO.CLASSES).values())
+
     for input_file in tqdm(images):
         # The current weights are designed for 416 x 416 images, so preprocssing, recoloring and
         # One-hot encoding
-        original_image = cv2.imread(input_file.as_posix())
-        rgb_img = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+        tf_input, original_h, original_w = extract_data(input_file)
 
-        image_data = np.asarray([cv2.resize(rgb_img, (416, 416)) / 255.], dtype=np.float32)
-
-        batch_data = tf.constant(image_data)
-        pred_bbox: Dict[str, tf.Tensor] = infer(batch_data)
-        for value in pred_bbox.values():
+        inference_result = infer(tf_input).values()
+        for value in inference_result:
             boxes = value[:, :, 0:4]
             pred_conf = value[:, :, 4:]
 
@@ -54,7 +53,6 @@ def detect(iou: float, score: float, images: List[Path]) -> List[Path]:
             score_threshold=score
         )
 
-        original_h, original_w, _ = original_image.shape
         bboxes = utils.format_boxes(boxes.numpy()[0], original_h, original_w)
         pred_bbox = [bboxes, scores.numpy()[0], classes.numpy()[0], valid_detections.numpy()[0]]
 
@@ -63,3 +61,19 @@ def detect(iou: float, score: float, images: List[Path]) -> List[Path]:
             list_fishes.append(input_file)
 
     return list_fishes
+
+def extract_data(input_file: Path) -> Tuple[tf.Tensor, int, int]:
+    """Extracts data from the input file for tensorflow inference
+
+    Args:
+        input_file (Path): Input data file
+
+    Returns:
+        Tuple[tf.Tensor, int, int]: Tensorflow inputs
+    """
+    original_image = cv2.imread(input_file.as_posix())
+    rgb_img = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+
+    tf_input = tf.constant(np.asarray([cv2.resize(rgb_img, (416, 416)) / 255.], dtype=np.float32))
+    original_h, original_w, _ = original_image.shape
+    return tf_input, original_h, original_w
