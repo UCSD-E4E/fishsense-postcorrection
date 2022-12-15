@@ -1,6 +1,20 @@
 """Label Studio support test module
 """
-from e4e.labelstudio import Point, Rectangle
+from pathlib import Path
+from typing import Dict, Tuple
+
+from labelstudio_mock_data import create_test_export
+
+from e4e.labelstudio import Point, Rectangle, extract_fish_annotations
+
+
+def test_extract_annotations(label_studio_export_json: Tuple[Path, Dict, Path]):
+    export_path, _, data_root = label_studio_export_json
+    output = extract_fish_annotations(
+        export_path=export_path,
+        data_root=data_root
+    )
+    assert len(output) == 3
 
 def test_rectangle_contains():
     """Test for point in rotated angle
