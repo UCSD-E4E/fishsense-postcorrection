@@ -15,6 +15,7 @@ from tqdm import tqdm
 class Aligner:
     """Alignment tool
     """
+    # pylint: disable=too-many-instance-attributes,too-few-public-methods
     def __init__(self, rgb: cv.Mat, depth: cv.Mat):
         self.__rgb = rgb
         self.__depth = depth
@@ -63,6 +64,7 @@ class Aligner:
 def visual_align_run():
     """Main tool body
     """
+    # pylint: disable=too-many-locals
     rgb_points: List[Tuple[float, float]] = []
     depth_points: List[Tuple[float, float]] = []
 
