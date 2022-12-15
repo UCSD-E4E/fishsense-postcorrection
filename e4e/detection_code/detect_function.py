@@ -40,6 +40,9 @@ def detect(iou: float, score: float, images: List[Path]) -> List[Path]:
         tf_input, original_h, original_w = extract_data(input_file)
 
         inference_result = infer(tf_input).values()
+        
+        #this for loop only iterates over information in one iamge, its here b/c the code
+        # broke without it. This is not a high priority fix, but if you get time its here
         for value in inference_result:
             boxes = value[:, :, 0:4]
             pred_conf = value[:, :, 4:]
