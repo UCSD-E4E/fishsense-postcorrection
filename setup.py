@@ -27,7 +27,6 @@ setup(
         'matplotlib',
         'pyyaml',
         'scikit-image',
-        'pylint',
         'lxml',
         'tensorflow',
         'absl-py',
