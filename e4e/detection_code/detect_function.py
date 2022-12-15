@@ -26,7 +26,6 @@ def detect(iou: float, score: float, images: List[Path]) -> List[Path]:
         List[Path]: List of images that have fish
     """
     # pylint: disable=too-many-locals
-    # fixme: too-many-locals
     #taking in input from given weights and input folders
     list_fishes: List[Path] = []
 
@@ -39,13 +38,13 @@ def detect(iou: float, score: float, images: List[Path]) -> List[Path]:
         # One-hot encoding
         tf_input, original_h, original_w = extract_data(input_file)
 
-        inference_result = infer(tf_input).values()
-        
-        #this for loop only iterates over information in one iamge, its here b/c the code
-        # broke without it. This is not a high priority fix, but if you get time its here
-        for value in inference_result:
-            boxes = value[:, :, 0:4]
-            pred_conf = value[:, :, 4:]
+        inference_result = list(infer(tf_input).values())
+
+        # `infer` outputs a result per image.  Because we only input a single image, we will only
+        # ever have one result.  Adding assertion to validate this assumption
+        assert len(inference_result) == 1
+        boxes = inference_result[-1][:, :, 0:4]
+        pred_conf = inference_result[-1][:, :, 4:]
 
         # run non max suppression on detections
         boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
