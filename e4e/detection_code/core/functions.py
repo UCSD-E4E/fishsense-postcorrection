@@ -1,3 +1,5 @@
+# pylint: skip-file
+# Imported from original Yolo source: https://github.com/theAIGuysCode/yolov4-custom-functions
 import os
 from typing import Dict
 import cv2

@@ -46,9 +46,9 @@ def fishfinder_main():
 
     fish_images = find_fish(folder=input_path)
 
-    with open(output_file, 'w', encoding='ascii') as f:
+    with open(output_file, 'w', encoding='ascii') as handle:
         for img in fish_images:
-            f.write(f'{img.relative_to(input_path).as_posix()}\n')
+            handle.write(f'{img.relative_to(input_path).as_posix()}\n')
 
 def fishfinder_loadweights(
         model_path: Path = Path('yolov4-416'),

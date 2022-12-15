@@ -1,3 +1,5 @@
+# pylint: skip-file
+# Imported from original Yolo source: https://github.com/theAIGuysCode/yolov4-custom-functions
 import colorsys
 import random
 import re
