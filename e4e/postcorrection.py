@@ -1,3 +1,5 @@
+'''Post Correction code
+'''
 import datetime as dt
 from argparse import ArgumentParser
 from pathlib import Path
@@ -7,7 +9,15 @@ import pyrealsense2 as rs
 import yaml
 
 
+def process_frame(*args):
+    """Frame process placeholder
+    """
+    return args
+
 def main():
+    """Main function
+
+    """
     parser = ArgumentParser()
     parser.add_argument('input')
     parser.add_argument('-o', '--output', default=None)
@@ -26,7 +36,7 @@ def main():
 
     correction_parameter_file = Path(args.params)
 
-    with open(correction_parameter_file, 'r') as handle:
+    with open(correction_parameter_file, 'r', encoding='ascii') as handle:
         data = yaml.safe_load(handle)
 
     depth_matrix = np.array(data['depth_matrix'])
@@ -41,15 +51,17 @@ def main():
     __start_time = dt.datetime.now()
     try:
         while True:
-            frames = pipeline.wait_for_frames() # pylint: disable unused-variable
+            frame = pipeline.wait_for_frames()
             if frame_idx % 100 == 0:
                 print(f'Got frame {frame_idx}')
             frame_idx += 1
+            process_frame(frame, depth_matrix, output_file)
     except Exception:  # pylint: disable=broad-except
         pipeline.stop()
     __end_time = dt.datetime.now()
     total_time = (__end_time - __start_time).total_seconds()
-    print(f"Processed {frame_idx} frames in {total_time:.2f} seconds at {frame_idx / total_time} fps")
+    print(f"Processed {frame_idx} frames in {total_time:.2f} "
+        f"seconds at {frame_idx / total_time} fps")
 
 if __name__ == '__main__':
     main()
