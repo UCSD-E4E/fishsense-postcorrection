@@ -26,6 +26,12 @@ setup(
         'matplotlib',
         'pyyaml',
         'scikit-image',
-        'pylint',
-    ]
+    ],
+    extras_require={
+        'dev': [
+            'pytest',
+            'pylint',
+            'wheel',
+        ]
+    }
 )
