@@ -33,7 +33,8 @@ setup(
         'easydict',
         'pillow',
         'pytesseract',
-        'smb_unzip @ https://github.com/UCSD-E4E/smb-unzip/archive/refs/heads/main.zip'
+        'smb_unzip @ https://github.com/UCSD-E4E/smb-unzip/archive/refs/heads/main.zip',
+        'appdirs',
     ],
     extras_require={
         'dev': [
