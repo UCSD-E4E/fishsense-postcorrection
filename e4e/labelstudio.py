@@ -33,19 +33,15 @@ class Rectangle:
     rotation: float
 
     def __contains__(self, other: Any):
-        if isinstance(other, Point):
-            point = np.array([other.loc_x, other.loc_y])
-            point -= np.array([self.loc_x, self.loc_y])
-            rotation = np.deg2rad(self.rotation)
-            r_mat = np.array([[np.cos(rotation), np.sin(rotation)],
-                [-np.sin(rotation), np.cos(rotation)]])
-            point = np.matmul(r_mat, point)
-            if np.abs(point[0]) <= self.width / 2. and np.abs(point[1]) <= self.height / 2.:
-                return True
-            else:
-                return False
-        else:
+        if not isinstance(other, Point):
             raise NotImplementedError
+        point = np.array([other.loc_x, other.loc_y])
+        point -= np.array([self.loc_x, self.loc_y])
+        rotation = np.deg2rad(self.rotation)
+        r_mat = np.array([[np.cos(rotation), np.sin(rotation)],
+            [-np.sin(rotation), np.cos(rotation)]])
+        point = np.matmul(r_mat, point)
+        return np.abs(point[0]) <= self.width / 2. and np.abs(point[1]) <= self.height / 2.
 
 @dataclass
 class FishAnnotation:
@@ -73,10 +69,10 @@ def extract_fish_annotations(export_path: Path, data_root: Path) -> List[FishAnn
     log = logging.getLogger('Fish Annotation Extractor')
 
     annotations: List[FishAnnotation] = []
-    
+
     with open(export_path, 'r', encoding='utf8') as label_file:
         data: List[Dict] = json.load(label_file)
-    
+
     for file_info in data:
         for annotation in file_info['annotations']:
             assert isinstance(annotation, dict)
