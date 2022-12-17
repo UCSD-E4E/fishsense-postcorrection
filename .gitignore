@@ -131,3 +131,6 @@ dmypy.json
 # FishSense Correction
 *.bag
 *.times.txt
+*.pb
+*.weights
+yolov4-416

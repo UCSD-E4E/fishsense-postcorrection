@@ -5,12 +5,33 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "FishSense FishFinder Multi Run",
+            "type": "python",
+            "request": "launch",
+            "program": "fishfinder_runner.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["Z:\\data\\2022-05 Reef Deployment outputs"]
+        },
+        {
+            "name": "FishSense FishFinder",
+            "type": "python",
+            "request": "launch",
+            "module": "e4e.fishfinder",
+            "justMyCode": true,
+            "args": []
+        },
+        {
             "name": "FishSense Extraction",
             "type": "python",
             "request": "launch",
             "module": "e4e.extract",
             "justMyCode": true,
-            "args": ["160.bag", "D:\\160_bag", "D:\\160_bag_labels"]
+            "args": [
+                "160.bag",
+                "D:\\160_bag",
+                "D:\\160_bag_labels"
+            ]
         },
         {
             "name": "FishSense Postcorrection",

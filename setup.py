@@ -13,6 +13,7 @@ setup(
             'fishsense_correctionAnalyze = e4e.analyze:main',
             'fishsense_extract = e4e.extract:main',
             'fishsense_visualalign = e4e.visualAlign:visualAlignRun',
+            'fishsense_fishfinder = e4e.fishfinder:fishfinder_main',
         ]
     },
     packages=find_packages(),
@@ -26,6 +27,14 @@ setup(
         'matplotlib',
         'pyyaml',
         'scikit-image',
+        'lxml',
+        'tensorflow',
+        'absl-py',
+        'easydict',
+        'pillow',
+        'pytesseract',
+        'smb_unzip @ https://github.com/UCSD-E4E/smb-unzip/archive/refs/heads/main.zip',
+        'appdirs',
     ],
     extras_require={
         'dev': [
